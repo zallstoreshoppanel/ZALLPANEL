@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel ZALL</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      overflow: hidden;
+      background: #222;
+      color: #fff;
+    }
+    #loginOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #loginOverlay input {
+      padding: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    #loginOverlay button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 4px;
+      background: #4285f4;
+      color: #fff;
+      cursor: pointer;
+    }
+    #mainContent {
+      display: none;
+      height: 100%;
+      text-align: center;
+      padding-top: 30px;
+    }
+    /* Gaya logo dengan gambar */
+    #logo {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto;
+      margin-bottom: 20px;
+    }
+    #logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    /* Container tombol persentase */
+    #buttonContainer {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .aimButton {
+      padding: 15px 30px;
+      font-size: 20px;
+      background: #357ae8;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 200px;
+      transition: background 0.3s ease;
+    }
+    .aimButton.active {
+      background: #34c759;
+    }
+    .aimButton.disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    /* Progress bar */
+    #progressContainer {
+      margin-top: 20px;
+      width: 80%;
+      height: 20px;
+      background: #555;
+      border-radius: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      overflow: hidden;
+      display: none;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0;
+      background: #34c759;
+      border-radius: 10px;
+      transition: width 0.1s ease;
+    }
+    #notification {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #34c759;
+      display: none;
+    }
+    /* Style pesan error */
+    #errorMsg {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ff4d4d;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Overlay login -->
+  <div id="loginOverlay">
+    <h2>Masukkan Username</h2>
+    <input type="text" id="usernameInput" placeholder="Username" />
+    <button id="loginBtn">Masuk</button>
+    <p id="loginMsg" style="color: #ff4d4d; display:none;">Username salah!</p>
+  </div>
+
+  <!-- Konten utama -->
+  <div id="mainContent">
+    <!-- Logo dengan gambar -->
+    <div id="logo">
+      <img src="https://s6.ezgif.com/tmp/ezgif-6b1ab893fe307.jpg" alt="Logo Panel ZALL" />
+    </div>
+    <!-- Container tombol dengan persentase berbeda -->
+    <div id="buttonContainer">
+      <button class="aimButton" data-percentage="10">AIM BOT 10%</button>
+      <button class="aimButton" data-percentage="30">AIM BOT 30%</button>
+      <button class="aimButton" data-percentage="50">AIM BOT 50%</button>
+      <button class="aimButton" data-percentage="70">AIM BOT 70%</button>
+      <button class="aimButton" data-percentage="90">AIM BOT 90%</button>
+      <button class="aimButton" data-percentage="100">AIM BOT 100%</button>
+    </div>
+
+    <!-- Pesan error jika tombol lain ditekan selama locked -->
+    <div id="errorMsg">Error: Silahkan tunggu 5 menit!</div>
+
+    <!-- Progress bar untuk aimbot -->
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+
+    <!-- Notifikasi -->
+    <div id="notification">AIM BOT ACTIVE</div>
+  </div>
+
+  <script>
+    // Proses login: hanya terima username "PANEL ZALL"
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      var username = document.getElementById('usernameInput').value.trim();
+      if(username.toUpperCase() === "PANEL ZALL") {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      } else {
+        var msg = document.getElementById('loginMsg');
+        msg.style.display = 'block';
+        msg.textContent = "Username salah!";
+      }
+    });
+
+    // Variabel untuk mengunci tombol selama 5 menit
+    let isLocked = false;
+    let lockTimeout;
+
+    const aimButtons = document.querySelectorAll('.aimButton');
+    const errorMsg = document.getElementById('errorMsg');
+
+    aimButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        // Jika sedang terkunci dan tombol yang ditekan bukan tombol aktif, tampilkan error
+        if (isLocked && !button.classList.contains('active')) {
+          errorMsg.style.display = 'block';
+          setTimeout(() => {
+            errorMsg.style.display = 'none';
+          }, 2000);
+          return;
+        }
+
+        // Jika tombol ini sudah aktif, abaikan klik tambahan
+        if (button.classList.contains('active')) return;
+
+        // Kunci semua tombol
+        isLocked = true;
+        aimButtons.forEach(btn => {
+          btn.classList.add('disabled');
+          btn.disabled = true;
+        });
+        // Aktifkan tombol yang ditekan
+        button.classList.remove('disabled');
+        button.disabled = false;
+        button.classList.add('active');
+
+        // Ambil nilai persentase
+        let aimPercentage = parseInt(button.getAttribute('data-percentage'));
+
+        // Tampilkan progress bar dan reset nilainya
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const notification = document.getElementById('notification');
+        progressBar.style.width = '0%';
+        notification.style.display = 'none';
+        progressContainer.style.display = 'block';
+
+        // Mulai animasi progress bar
+        let progress = 0;
+        let interval = setInterval(function() {
+          progress += 2;
+          if(progress >= aimPercentage) {
+            progress = aimPercentage;
+            clearInterval(interval);
+            notification.style.display = 'block';
+            // Sembunyikan progress bar dan notifikasi setelah 2 detik
+            setTimeout(function() {
+              notification.style.display = 'none';
+              progressContainer.style.display = 'none';
+            }, 2000);
+          }
+          progressBar.style.width = progress + '%';
+        }, 100);
+
+        // Set timer 5 menit untuk membuka kunci tombol
+        clearTimeout(lockTimeout);
+        lockTimeout = setTimeout(() => {
+          isLocked = false;
+          aimButtons.forEach(btn => {
+            btn.classList.remove('disabled');
+            btn.disabled = false;
+            btn.classList.remove('active');
+          });
+        }, 5 * 60 * 1000); // 5 menit dalam milidetik
+      });
+    });
+  </script>
+</body>
+</html>
