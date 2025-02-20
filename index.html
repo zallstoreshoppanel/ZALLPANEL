@@ -11,9 +11,10 @@
       font-family: Arial, sans-serif;
       height: 100%;
       overflow: hidden;
-      background: #222;
+      background: url('wall.gif') no-repeat center center/cover;
       color: #fff;
     }
+    /* Overlay login */
     #loginOverlay {
       position: fixed;
       top: 0;
@@ -25,7 +26,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 2000;
     }
     #loginOverlay input {
       padding: 10px;
@@ -43,13 +44,44 @@
       color: #fff;
       cursor: pointer;
     }
+    #loginOverlay p {
+      color: #ff4d4d;
+      display: none;
+    }
+    /* Loading overlay */
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      display: none;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #4285f4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Konten utama */
     #mainContent {
       display: none;
       height: 100%;
       text-align: center;
       padding-top: 30px;
     }
-    /* Gaya logo dengan gambar */
+    /* Logo dengan gambar */
     #logo {
       width: 100px;
       height: 100px;
@@ -127,14 +159,19 @@
     <h2>Masukkan Username</h2>
     <input type="text" id="usernameInput" placeholder="Username" />
     <button id="loginBtn">Masuk</button>
-    <p id="loginMsg" style="color: #ff4d4d; display:none;">Username salah!</p>
+    <p id="loginMsg">Username salah!</p>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
   </div>
 
   <!-- Konten utama -->
   <div id="mainContent">
     <!-- Logo dengan gambar -->
     <div id="logo">
-      <img src="https://s6.ezgif.com/tmp/ezgif-6b1ab893fe307.jpg" alt="Logo Panel ZALL" />
+      <img src="logo.jpg" alt="Logo Panel ZALL" />
     </div>
     <!-- Container tombol dengan persentase berbeda -->
     <div id="buttonContainer">
@@ -145,15 +182,12 @@
       <button class="aimButton" data-percentage="90">AIM BOT 90%</button>
       <button class="aimButton" data-percentage="100">AIM BOT 100%</button>
     </div>
-
     <!-- Pesan error jika tombol lain ditekan selama locked -->
     <div id="errorMsg">Error: Silahkan tunggu 5 menit!</div>
-
     <!-- Progress bar untuk aimbot -->
     <div id="progressContainer">
       <div id="progressBar"></div>
     </div>
-
     <!-- Notifikasi -->
     <div id="notification">AIM BOT ACTIVE</div>
   </div>
@@ -163,8 +197,15 @@
     document.getElementById('loginBtn').addEventListener('click', function() {
       var username = document.getElementById('usernameInput').value.trim();
       if(username.toUpperCase() === "PANEL ZALL") {
+        // Tampilkan loading overlay
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        // Sembunyikan overlay login
         document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
+        // Setelah 2 detik, sembunyikan loading overlay dan tampilkan konten utama
+        setTimeout(function(){
+          document.getElementById('loadingOverlay').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+        }, 2000);
       } else {
         var msg = document.getElementById('loginMsg');
         msg.style.display = 'block';
@@ -241,7 +282,7 @@
             btn.disabled = false;
             btn.classList.remove('active');
           });
-        }, 5 * 60 * 1000); // 5 menit dalam milidetik
+        }, 5 * 60 * 1000); // 5 menit
       });
     });
   </script>
